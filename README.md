@@ -27,11 +27,11 @@ uv run captainhook-flask
 uv run captainhook-fastapi
 ```
 
-Der Server lauscht standardmäßig auf Port **5000** (konfigurierbar über `WEBHOOK_PORT` in `.env`).
+Der Server lauscht standardmäßig auf Port **3333** (konfigurierbar über `WEBHOOK_PORT` in `.env`).
 
 ### HTMX-Dashboard (Flask)
 
-Der Flask-Server enthält ein Web-Dashboard unter `http://localhost:5000/`:
+Der Flask-Server enthält ein Web-Dashboard unter `http://localhost:3333/`:
 
 - **Live-Event-Log** – zeigt empfangene Webhooks in Echtzeit (Polling alle 3 s)
 - **Test-Sender** – Webhooks direkt aus dem Browser verschicken
@@ -81,7 +81,7 @@ Oder manuell per `crontab -e`:
 
 - **HMAC-SHA256-Signatur:** Wird automatisch erzeugt und geprüft, wenn `WEBHOOK_SECRET` gesetzt ist.
 - **Umgebungsvariablen:** Sensible Daten gehören in `.env`, nicht in den Quellcode.
-- Für öffentliche Tests: `ngrok http 5000`
+- Für öffentliche Tests: `ngrok http 3333`
 
 ## Projektstruktur
 
