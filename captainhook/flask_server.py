@@ -86,7 +86,7 @@ def health() -> tuple[Response, int]:
 @app.route("/")
 def dashboard() -> str:
     """Serve the main dashboard page."""
-    port = int(os.getenv("WEBHOOK_PORT", "3333"))
+    port = int(os.getenv("WEBHOOK_PORT", "5050"))
     return render_template("dashboard.html", port=port)
 
 
@@ -115,7 +115,7 @@ def ui_send() -> str:
     event = request.form.get("event", "test")
     target = (
         request.form.get("target", "").strip()
-        or f"http://localhost:{os.getenv('WEBHOOK_PORT', '3333')}/webhook"
+        or f"http://localhost:{os.getenv('WEBHOOK_PORT', '5050')}/webhook"
     )
     raw_payload = request.form.get("payload", "{}").strip()
 
@@ -140,7 +140,7 @@ def ui_send() -> str:
 
 
 def main() -> None:
-    port = int(os.getenv("WEBHOOK_PORT", "3333"))
+    port = int(os.getenv("WEBHOOK_PORT", "5050"))
     logger.info("Flask-Webhook-Server startet auf Port %d", port)
     app.run(host="0.0.0.0", port=port)
 

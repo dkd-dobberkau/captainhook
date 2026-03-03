@@ -29,8 +29,8 @@ cp .env.example .env
 
 ```dotenv
 WEBHOOK_SECRET=mein-geheimer-schluessel
-WEBHOOK_PORT=3333
-WEBHOOK_TARGET_URL=http://localhost:3333/webhook
+WEBHOOK_PORT=5050
+WEBHOOK_TARGET_URL=http://localhost:5050/webhook
 ```
 
 > **Tipp:** `WEBHOOK_SECRET` kann ein beliebiger String sein. Er wird zur
@@ -47,7 +47,7 @@ WEBHOOK_TARGET_URL=http://localhost:3333/webhook
 uv run captainhook-flask
 ```
 
-Öffne im Browser: **http://localhost:3333/**
+Öffne im Browser: **http://localhost:5050/**
 
 Du siehst das Dashboard mit:
 - einem Formular zum Versenden von Test-Webhooks
@@ -60,7 +60,7 @@ Du siehst das Dashboard mit:
 uv run captainhook-fastapi
 ```
 
-Die API-Docs sind unter **http://localhost:3333/docs** erreichbar.
+Die API-Docs sind unter **http://localhost:5050/docs** erreichbar.
 
 ---
 
@@ -69,7 +69,7 @@ Die API-Docs sind unter **http://localhost:3333/docs** erreichbar.
 ### Über das Dashboard
 
 1. Server starten (`uv run captainhook-flask`)
-2. http://localhost:3333/ aufrufen
+2. http://localhost:5050/ aufrufen
 3. Event-Name und Payload ausfüllen
 4. „Senden" klicken
 5. Das Event erscheint sofort in der Liste darunter
@@ -86,7 +86,7 @@ in `.env` konfigurierte `WEBHOOK_TARGET_URL`.
 ### Über curl
 
 ```bash
-curl -X POST http://localhost:3333/webhook \
+curl -X POST http://localhost:5050/webhook \
   -H "Content-Type: application/json" \
   -d '{"event": "deploy", "version": "1.0.0"}'
 ```
@@ -98,7 +98,7 @@ SECRET="mein-geheimer-schluessel"
 PAYLOAD='{"event": "deploy", "version": "1.0.0"}'
 SIGNATURE="sha256=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$SECRET" | cut -d' ' -f2)"
 
-curl -X POST http://localhost:3333/webhook \
+curl -X POST http://localhost:5050/webhook \
   -H "Content-Type: application/json" \
   -H "X-Webhook-Signature: $SIGNATURE" \
   -d "$PAYLOAD"
@@ -206,7 +206,7 @@ Zum Testen mit externen Services (GitHub, Stripe, etc.):
 
 ```bash
 # ngrok installieren: https://ngrok.com/download
-ngrok http 3333
+ngrok http 5050
 ```
 
 Die angezeigte URL (z. B. `https://abc123.ngrok.io`) kann als Webhook-URL in
@@ -217,7 +217,7 @@ externen Services eingetragen werden.
 ## 8. Health-Check
 
 ```bash
-curl http://localhost:3333/health
+curl http://localhost:5050/health
 # → {"status": "ok"}
 ```
 

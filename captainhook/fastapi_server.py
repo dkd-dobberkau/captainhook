@@ -60,7 +60,7 @@ async def health() -> dict[str, str]:
 
 
 def main() -> None:
-    port = int(os.getenv("WEBHOOK_PORT", "3333"))
+    port = int(os.getenv("WEBHOOK_PORT", "5050"))
     logger.info("FastAPI-Webhook-Server startet auf Port %d", port)
     uvicorn.run(app, host="0.0.0.0", port=port)
 
