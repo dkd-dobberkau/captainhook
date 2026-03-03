@@ -1,0 +1,23 @@
+[project]
+name = "captainhook"
+version = "0.1.0"
+description = "Selbstgebaute Webhook-Plattform mit Python"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = [
+    "flask>=3.0",
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "requests>=2.31",
+    "python-dotenv>=1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+captainhook-flask = "captainhook.flask_server:main"
+captainhook-fastapi = "captainhook.fastapi_server:main"
+captainhook-send = "captainhook.sender:main"

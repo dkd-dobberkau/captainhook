@@ -6,7 +6,7 @@ Eine selbstgebaute Webhook-Plattform mit Python. Enthält einen Empfangsserver (
 
 ```bash
 # Abhängigkeiten installieren
-pip install -r requirements.txt
+uv sync
 
 # Konfiguration anlegen
 cp .env.example .env
@@ -18,28 +18,37 @@ cp .env.example .env
 ### Option A – Flask
 
 ```bash
-python -m captainhook.flask_server
+uv run captainhook-flask
 ```
 
 ### Option B – FastAPI
 
 ```bash
-python -m captainhook.fastapi_server
+uv run captainhook-fastapi
 ```
 
-Der Server lauscht standardmäßig auf Port **5000** (konfigurierbar über `WEBHOOK_PORT` in `.env`).
+Der Server lauscht standardmäßig auf Port **3333** (konfigurierbar über `WEBHOOK_PORT` in `.env`).
+
+### HTMX-Dashboard (Flask)
+
+Der Flask-Server enthält ein Web-Dashboard unter `http://localhost:3333/`:
+
+- **Live-Event-Log** – zeigt empfangene Webhooks in Echtzeit (Polling alle 3 s)
+- **Test-Sender** – Webhooks direkt aus dem Browser verschicken
+- **Health-Badge** – Serverstatus auf einen Blick
 
 Endpunkte:
 
 | Methode | Pfad       | Beschreibung             |
 |---------|-----------|--------------------------|
+| GET     | `/`        | HTMX-Dashboard           |
 | POST    | `/webhook` | Webhook-Ereignisse empfangen |
 | GET     | `/health`  | Health-Check             |
 
 ## Webhook senden
 
 ```bash
-python -m captainhook.sender
+uv run captainhook-send
 ```
 
 Der Sender liest `WEBHOOK_TARGET_URL` und `WEBHOOK_SECRET` aus der `.env`-Datei. Er signiert Anfragen automatisch per HMAC-SHA256 und wiederholt fehlgeschlagene Sendungen bis zu 3 Mal mit exponentiellem Backoff.
@@ -65,14 +74,14 @@ send_webhook({"event": "deploy", "data": {"version": "1.2.0"}})
 Oder manuell per `crontab -e`:
 
 ```
-0 8 * * * cd /pfad/zu/captainhook && python3 -m captainhook.sender >> webhook.log 2>&1
+0 8 * * * cd /pfad/zu/captainhook && uv run captainhook-send >> webhook.log 2>&1
 ```
 
 ## Sicherheit
 
 - **HMAC-SHA256-Signatur:** Wird automatisch erzeugt und geprüft, wenn `WEBHOOK_SECRET` gesetzt ist.
 - **Umgebungsvariablen:** Sensible Daten gehören in `.env`, nicht in den Quellcode.
-- Für öffentliche Tests: `ngrok http 5000`
+- Für öffentliche Tests: `ngrok http 3333`
 
 ## Projektstruktur
 
@@ -80,14 +89,15 @@ Oder manuell per `crontab -e`:
 captainhook/
 ├── captainhook/
 │   ├── __init__.py
-│   ├── flask_server.py    # Flask-Webhook-Server
+│   ├── flask_server.py    # Flask-Webhook-Server + HTMX-Dashboard
 │   ├── fastapi_server.py  # FastAPI-Webhook-Server
 │   ├── sender.py          # Webhook-Sender mit Retry
-│   └── security.py        # HMAC-Signatur-Erzeugung & -Prüfung
+│   ├── security.py        # HMAC-Signatur-Erzeugung & -Prüfung
+│   └── templates/         # Jinja2/HTMX-Templates
 ├── scripts/
 │   └── setup_cron.sh      # Cron-Job-Einrichtung
 ├── .env.example            # Beispielkonfiguration
-├── requirements.txt
+├── pyproject.toml
 ├── LICENSE
 └── README.md
 ```

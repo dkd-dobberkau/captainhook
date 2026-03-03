@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Send test webhook -->
+<div class="card">
+    <h2>Webhook senden</h2>
+    <form hx-post="/ui/send" hx-target="#send-result" hx-swap="innerHTML">
+        <div class="row">
+            <div>
+                <label for="event">Event</label>
+                <input type="text" id="event" name="event" value="test" required>
+            </div>
+            <div>
+                <label for="target">Ziel-URL</label>
+                <input type="text" id="target" name="target" placeholder="http://localhost:{{ port }}/webhook">
+            </div>
+        </div>
+        <div>
+            <label for="payload">Payload (JSON)</label>
+            <textarea id="payload" name="payload">{"message": "Hallo Welt"}</textarea>
+        </div>
+        <button type="submit">
+            Senden <span class="htmx-indicator">...</span>
+        </button>
+        <div id="send-result"></div>
+    </form>
+</div>
+
+<!-- Live event log -->
+<div class="card">
+    <h2>Empfangene Webhooks</h2>
+    <div>
+        <button hx-delete="/ui/events" hx-target="#event-list" hx-swap="innerHTML"
+                style="background:#475569; margin-bottom:0.75rem; font-size:0.75rem;">
+            Alle löschen
+        </button>
+    </div>
+    <div id="event-list"
+         hx-get="/ui/events"
+         hx-trigger="load, every 3s"
+         hx-swap="innerHTML">
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaptainHook – Dashboard</title>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #0f172a; color: #e2e8f0;
+            line-height: 1.6;
+        }
+        header {
+            background: #1e293b; border-bottom: 1px solid #334155;
+            padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem;
+        }
+        header h1 { font-size: 1.25rem; font-weight: 600; }
+        header .badge {
+            font-size: 0.75rem; padding: 0.2rem 0.6rem;
+            border-radius: 9999px; font-weight: 500;
+        }
+        .badge-ok   { background: #065f46; color: #6ee7b7; }
+        .badge-err  { background: #7f1d1d; color: #fca5a5; }
+        main { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+        .card {
+            background: #1e293b; border: 1px solid #334155;
+            border-radius: 0.5rem; padding: 1.25rem; margin-bottom: 1.5rem;
+        }
+        .card h2 {
+            font-size: 1rem; font-weight: 600; margin-bottom: 1rem;
+            color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        form { display: flex; flex-direction: column; gap: 0.75rem; }
+        label { font-size: 0.875rem; color: #94a3b8; }
+        input, textarea, select {
+            background: #0f172a; border: 1px solid #334155;
+            border-radius: 0.375rem; padding: 0.5rem 0.75rem;
+            color: #e2e8f0; font-family: inherit; font-size: 0.875rem;
+            width: 100%;
+        }
+        textarea { resize: vertical; min-height: 4rem; font-family: monospace; }
+        input:focus, textarea:focus, select:focus {
+            outline: none; border-color: #3b82f6;
+        }
+        button {
+            background: #3b82f6; color: #fff; border: none;
+            border-radius: 0.375rem; padding: 0.5rem 1rem;
+            font-size: 0.875rem; font-weight: 500; cursor: pointer;
+            align-self: flex-start;
+        }
+        button:hover { background: #2563eb; }
+        .htmx-indicator { display: none; }
+        .htmx-request .htmx-indicator { display: inline; }
+        #send-result {
+            margin-top: 0.5rem; font-size: 0.875rem; min-height: 1.5rem;
+        }
+        .event-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .event-item {
+            background: #0f172a; border: 1px solid #334155;
+            border-radius: 0.375rem; padding: 0.75rem 1rem;
+            font-size: 0.875rem; display: flex; justify-content: space-between;
+            align-items: flex-start; gap: 1rem;
+        }
+        .event-item .meta { color: #64748b; font-size: 0.75rem; white-space: nowrap; }
+        .event-item pre {
+            flex: 1; overflow-x: auto; font-size: 0.8rem;
+            color: #cbd5e1; font-family: monospace;
+        }
+        .empty { color: #475569; font-style: italic; font-size: 0.875rem; }
+        .row { display: flex; gap: 0.75rem; }
+        .row > * { flex: 1; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>CaptainHook</h1>
+        <span hx-get="/ui/health-badge" hx-trigger="load, every 10s" hx-swap="outerHTML">
+            <span class="badge badge-ok">...</span>
+        </span>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
