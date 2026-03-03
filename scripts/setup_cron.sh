@@ -11,7 +11,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 SENDER="$PROJECT_DIR/captainhook/sender.py"
 LOG_FILE="$PROJECT_DIR/webhook.log"
-PYTHON="${PYTHON:-python3}"
+UV="${UV:-uv}"
 SCHEDULE="${1:-0 8 * * *}"
 
 # Verify sender script exists
@@ -20,14 +20,14 @@ if [ ! -f "$SENDER" ]; then
     exit 1
 fi
 
-CRON_LINE="$SCHEDULE cd $PROJECT_DIR && $PYTHON -m captainhook.sender >> $LOG_FILE 2>&1"
+CRON_LINE="$SCHEDULE cd $PROJECT_DIR && $UV run captainhook-send >> $LOG_FILE 2>&1"
 
 # Add to crontab (avoiding duplicates)
-( crontab -l 2>/dev/null | grep -v "captainhook.sender" ; echo "$CRON_LINE" ) | crontab -
+( crontab -l 2>/dev/null | grep -v "captainhook-send" ; echo "$CRON_LINE" ) | crontab -
 
 echo "Cron-Job eingerichtet:"
 echo "  Zeitplan : $SCHEDULE"
-echo "  Befehl   : cd $PROJECT_DIR && $PYTHON -m captainhook.sender"
+echo "  Befehl   : cd $PROJECT_DIR && $UV run captainhook-send"
 echo "  Log-Datei: $LOG_FILE"
 echo ""
 echo "Aktuelle Crontab:"

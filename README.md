@@ -6,7 +6,7 @@ Eine selbstgebaute Webhook-Plattform mit Python. Enthält einen Empfangsserver (
 
 ```bash
 # Abhängigkeiten installieren
-pip install -r requirements.txt
+uv sync
 
 # Konfiguration anlegen
 cp .env.example .env
@@ -18,13 +18,13 @@ cp .env.example .env
 ### Option A – Flask
 
 ```bash
-python -m captainhook.flask_server
+uv run captainhook-flask
 ```
 
 ### Option B – FastAPI
 
 ```bash
-python -m captainhook.fastapi_server
+uv run captainhook-fastapi
 ```
 
 Der Server lauscht standardmäßig auf Port **5000** (konfigurierbar über `WEBHOOK_PORT` in `.env`).
@@ -39,7 +39,7 @@ Endpunkte:
 ## Webhook senden
 
 ```bash
-python -m captainhook.sender
+uv run captainhook-send
 ```
 
 Der Sender liest `WEBHOOK_TARGET_URL` und `WEBHOOK_SECRET` aus der `.env`-Datei. Er signiert Anfragen automatisch per HMAC-SHA256 und wiederholt fehlgeschlagene Sendungen bis zu 3 Mal mit exponentiellem Backoff.
@@ -65,7 +65,7 @@ send_webhook({"event": "deploy", "data": {"version": "1.2.0"}})
 Oder manuell per `crontab -e`:
 
 ```
-0 8 * * * cd /pfad/zu/captainhook && python3 -m captainhook.sender >> webhook.log 2>&1
+0 8 * * * cd /pfad/zu/captainhook && uv run captainhook-send >> webhook.log 2>&1
 ```
 
 ## Sicherheit
@@ -87,7 +87,7 @@ captainhook/
 ├── scripts/
 │   └── setup_cron.sh      # Cron-Job-Einrichtung
 ├── .env.example            # Beispielkonfiguration
-├── requirements.txt
+├── pyproject.toml
 ├── LICENSE
 └── README.md
 ```
