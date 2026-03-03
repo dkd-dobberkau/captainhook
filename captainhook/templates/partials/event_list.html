@@ -1,0 +1,12 @@
+<div class="event-list">
+{% if events %}
+    {% for ev in events %}
+    <div class="event-item">
+        <pre>{{ ev.data | tojson(indent=2) }}</pre>
+        <span class="meta">{{ ev.timestamp }}</span>
+    </div>
+    {% endfor %}
+{% else %}
+    <p class="empty">Noch keine Webhooks empfangen.</p>
+{% endif %}
+</div>

@@ -29,10 +29,19 @@ uv run captainhook-fastapi
 
 Der Server lauscht standardmäßig auf Port **5000** (konfigurierbar über `WEBHOOK_PORT` in `.env`).
 
+### HTMX-Dashboard (Flask)
+
+Der Flask-Server enthält ein Web-Dashboard unter `http://localhost:5000/`:
+
+- **Live-Event-Log** – zeigt empfangene Webhooks in Echtzeit (Polling alle 3 s)
+- **Test-Sender** – Webhooks direkt aus dem Browser verschicken
+- **Health-Badge** – Serverstatus auf einen Blick
+
 Endpunkte:
 
 | Methode | Pfad       | Beschreibung             |
 |---------|-----------|--------------------------|
+| GET     | `/`        | HTMX-Dashboard           |
 | POST    | `/webhook` | Webhook-Ereignisse empfangen |
 | GET     | `/health`  | Health-Check             |
 
@@ -80,10 +89,11 @@ Oder manuell per `crontab -e`:
 captainhook/
 ├── captainhook/
 │   ├── __init__.py
-│   ├── flask_server.py    # Flask-Webhook-Server
+│   ├── flask_server.py    # Flask-Webhook-Server + HTMX-Dashboard
 │   ├── fastapi_server.py  # FastAPI-Webhook-Server
 │   ├── sender.py          # Webhook-Sender mit Retry
-│   └── security.py        # HMAC-Signatur-Erzeugung & -Prüfung
+│   ├── security.py        # HMAC-Signatur-Erzeugung & -Prüfung
+│   └── templates/         # Jinja2/HTMX-Templates
 ├── scripts/
 │   └── setup_cron.sh      # Cron-Job-Einrichtung
 ├── .env.example            # Beispielkonfiguration
