@@ -86,7 +86,8 @@ def health() -> tuple[Response, int]:
 @app.route("/")
 def dashboard() -> str:
     """Serve the main dashboard page."""
-    return render_template("dashboard.html")
+    port = int(os.getenv("WEBHOOK_PORT", "3333"))
+    return render_template("dashboard.html", port=port)
 
 
 @app.route("/ui/events", methods=["GET"])
