@@ -3,7 +3,6 @@
 import json
 import logging
 import os
-from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -11,6 +10,7 @@ import requests as req
 from dotenv import load_dotenv
 from flask import Flask, Response, render_template, request
 
+from captainhook.database import add_event, clear_events, get_events, init_db
 from captainhook.security import generate_signature, verify_signature
 
 load_dotenv()
@@ -26,8 +26,7 @@ app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 
 WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
 
-# In-memory event store (newest first, max 200 entries)
-events: deque[dict] = deque(maxlen=200)
+init_db()
 
 
 # ── Webhook API ──────────────────────────────────────────────────────────────
@@ -55,7 +54,7 @@ def webhook() -> tuple[Response, int]:
         )
 
     now = datetime.now(timezone.utc)
-    events.appendleft({"data": data, "timestamp": now.strftime("%H:%M:%S")})
+    add_event(data, now.strftime("%H:%M:%S"))
 
     logger.info(
         "Webhook empfangen: event=%s, timestamp=%s",
@@ -93,13 +92,13 @@ def dashboard() -> str:
 @app.route("/ui/events", methods=["GET"])
 def ui_events() -> str:
     """Return the event list partial (polled by htmx)."""
-    return render_template("partials/event_list.html", events=list(events))
+    return render_template("partials/event_list.html", events=get_events())
 
 
 @app.route("/ui/events", methods=["DELETE"])
 def ui_clear_events() -> str:
     """Clear all stored events."""
-    events.clear()
+    clear_events()
     return render_template("partials/event_list.html", events=[])
 
 
