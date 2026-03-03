@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 
 WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
 WEBHOOK_TARGET_URL = os.getenv(
-    "WEBHOOK_TARGET_URL", "http://localhost:5050/webhook"
+    "WEBHOOK_TARGET_URL",
+    f"http://localhost:{os.getenv('WEBHOOK_PORT', '5050')}/webhook",
 )
 MAX_RETRIES = 3
 RETRY_BACKOFF = 2  # seconds, doubles each retry
