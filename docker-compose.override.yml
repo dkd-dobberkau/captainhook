@@ -1,0 +1,26 @@
+# Development overrides — applied automatically by `docker compose up`
+# Exposes ports directly and mounts source code for live reload.
+
+services:
+
+  surrealdb:
+    ports:
+      - "8000:8000"
+
+  flask:
+    ports:
+      - "5050:8000"
+    volumes:
+      - ./captainhook:/app/captainhook
+    environment:
+      - GUNICORN_WORKERS=1
+      - GUNICORN_LOG_LEVEL=debug
+
+  fastapi:
+    ports:
+      - "5051:8001"
+    volumes:
+      - ./captainhook:/app/captainhook
+    environment:
+      - GUNICORN_WORKERS=1
+      - GUNICORN_LOG_LEVEL=debug

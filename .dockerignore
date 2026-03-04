@@ -1,0 +1,11 @@
+# Only include what's needed for the build
+*
+
+!captainhook/
+!pyproject.toml
+!gunicorn.conf.py
+!README.md
+
+# Exclude from captainhook/
+captainhook/__pycache__/
+captainhook/*.pyc

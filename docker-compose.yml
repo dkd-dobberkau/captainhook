@@ -1,0 +1,136 @@
+services:
+
+  # ── Database ──────────────────────────────────────────────────────────────
+
+  surrealdb:
+    image: surrealdb/surrealdb:v2
+    container_name: captainhook-surrealdb
+    user: root
+    command: start --user ${SURREALDB_USER:-root} --pass ${SURREALDB_PASS:-root} surrealkv:/data/database.db
+    volumes:
+      - surrealdb-data:/data
+    networks:
+      - captainhook-net
+    healthcheck:
+      test: ["CMD", "/surreal", "isready", "--endpoint", "http://localhost:8000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+  # ── Flask (Dashboard + Webhook) ───────────────────────────────────────────
+
+  flask:
+    build: .
+    container_name: captainhook-flask
+    command: ["gunicorn", "captainhook.flask_server:app"]
+    environment:
+      - SURREALDB_URL=http://surrealdb:8000
+      - SURREALDB_NS=${SURREALDB_NS:-captainhook}
+      - SURREALDB_DB=${SURREALDB_DB:-captainhook}
+      - SURREALDB_USER=${SURREALDB_USER:-root}
+      - SURREALDB_PASS=${SURREALDB_PASS:-root}
+      - GUNICORN_BIND_PORT=8000
+      - GUNICORN_WORKERS=${FLASK_WORKERS:-2}
+      - GUNICORN_WORKER_CLASS=sync
+    env_file:
+      - .env
+    depends_on:
+      surrealdb:
+        condition: service_healthy
+    networks:
+      - captainhook-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.flask.rule=Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.flask.entrypoints=web"
+      - "traefik.http.services.flask.loadbalancer.server.port=8000"
+    restart: unless-stopped
+
+  # ── FastAPI (API-only Webhook) ────────────────────────────────────────────
+
+  fastapi:
+    build: .
+    container_name: captainhook-fastapi
+    command: ["gunicorn", "captainhook.fastapi_server:app"]
+    environment:
+      - SURREALDB_URL=http://surrealdb:8000
+      - SURREALDB_NS=${SURREALDB_NS:-captainhook}
+      - SURREALDB_DB=${SURREALDB_DB:-captainhook}
+      - SURREALDB_USER=${SURREALDB_USER:-root}
+      - SURREALDB_PASS=${SURREALDB_PASS:-root}
+      - GUNICORN_BIND_PORT=8001
+      - GUNICORN_WORKERS=${FASTAPI_WORKERS:-2}
+      - GUNICORN_WORKER_CLASS=uvicorn.workers.UvicornWorker
+    env_file:
+      - .env
+    depends_on:
+      surrealdb:
+        condition: service_healthy
+    networks:
+      - captainhook-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fastapi.rule=Host(`${DOMAIN:-localhost}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.fastapi.entrypoints=web"
+      - "traefik.http.middlewares.strip-api.stripprefix.prefixes=/api"
+      - "traefik.http.routers.fastapi.middlewares=strip-api"
+      - "traefik.http.services.fastapi.loadbalancer.server.port=8001"
+    restart: unless-stopped
+
+  # ── Traefik (Profile: traefik) ────────────────────────────────────────────
+
+  traefik:
+    image: traefik:v3.3
+    container_name: captainhook-traefik
+    profiles:
+      - traefik
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=captainhook-net"
+      - "--entrypoints.web.address=:${HTTP_PORT:-80}"
+      - "--entrypoints.websecure.address=:${HTTPS_PORT:-443}"
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      # Uncomment for Let's Encrypt:
+      # - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      # - "--certificatesresolvers.letsencrypt.acme.storage=/acme/acme.json"
+      # - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+    ports:
+      - "${HTTP_PORT:-80}:${HTTP_PORT:-80}"
+      - "${HTTPS_PORT:-443}:${HTTPS_PORT:-443}"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - acme-data:/acme
+    networks:
+      - captainhook-net
+    restart: unless-stopped
+
+  # ── Nginx (Profile: nginx) ───────────────────────────────────────────────
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: captainhook-nginx
+    profiles:
+      - nginx
+    ports:
+      - "${HTTP_PORT:-80}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - flask
+      - fastapi
+    networks:
+      - captainhook-net
+    restart: unless-stopped
+
+volumes:
+  surrealdb-data:
+  acme-data:
+
+networks:
+  captainhook-net:
+    driver: bridge

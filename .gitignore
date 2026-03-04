@@ -28,3 +28,11 @@ uv.lock
 # OS
 .DS_Store
 Thumbs.db
+
+# Database
+*.db
+
+# Docker / Traefik / Nginx
+acme.json
+surrealdb-data/
+nginx/certs/
