@@ -36,3 +36,6 @@ Thumbs.db
 acme.json
 surrealdb-data/
 nginx/certs/
+
+# Playwright MCP
+.playwright-mcp/
